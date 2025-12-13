@@ -16,13 +16,7 @@ export default function DefaultPage() {
         input.accept = "image/*"
         input.style.display = "none"
 
-        const formData = new FormData()
-        formData.append("image", file) // Ключ 'image' будет на сервере
-        formData.append("filename", file.name)
-        formData.append("filetype", file.type)
-        formData.append("filesize", file.size.toString())
-
-        input.onchange = (e) => {
+        input.onchange = async (e) => {
             const file = e.target.files[0]
             if (!file) return
 
@@ -32,22 +26,28 @@ export default function DefaultPage() {
                 document.body.removeChild(input)
             }
             reader.readAsDataURL(file)
-        }
 
-        try {
-            // Отправляем на сервер
-            const response = fetch("http://localhost:5000/api/upload", {
-                method: "POST",
-                body: formData,
-                // Не указываем Content-Type, FormData установит его автоматически
-            })
+            const formData = new FormData()
+            formData.append("image", file) // Ключ 'image' будет на сервере
+            formData.append("filename", file.name)
+            formData.append("filetype", file.type)
+            formData.append("filesize", file.size.toString())
 
-            if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+            try {
+                // Отправляем на сервер
+                const response = await fetch("http://localhost:5000/api/upload", {
+                    method: "POST",
+                    body: formData,
+                    // Не указываем Content-Type, FormData установит его автоматически
+                })
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`)
+                }
+            } catch (error) {
+                console.error("Ошибка при отправке:", error)
+                alert("Не удалось загрузить изображение на сервер")
             }
-        } catch (error) {
-            console.error("Ошибка при отправке:", error)
-            alert("Не удалось загрузить изображение на сервер")
         }
 
         document.body.appendChild(input)
