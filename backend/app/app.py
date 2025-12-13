@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from app.services.operations.operations import operations_bp
+from app.api.operations import operations_bp
 
 
 
