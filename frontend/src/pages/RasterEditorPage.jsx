@@ -28,7 +28,7 @@ export default function DefaultPage() {
             reader.readAsDataURL(file)
 
             const formData = new FormData()
-            formData.append("image", file) // Ключ 'image' будет на сервере
+            formData.append("file", file) // Ключ 'image' будет на сервере
             formData.append("filename", file.name)
             formData.append("filetype", file.type)
             formData.append("filesize", file.size.toString())
@@ -44,6 +44,9 @@ export default function DefaultPage() {
                 if (!response.ok) {
                     throw new Error(`Ошибка сервера: ${response.status}`)
                 }
+                // Добавьте получение ответа от сервера
+                const result = await response.json()
+                console.log("Ответ сервера:", result)
             } catch (error) {
                 console.error("Ошибка при отправке:", error)
                 alert("Не удалось загрузить изображение на сервер")

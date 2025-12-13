@@ -11,7 +11,7 @@ def create_app():
 
 
     CORS(app)
-    app.register_blueprint(operations_bp, url_prefix='/api/operations')
+    app.register_blueprint(operations_bp, url_prefix='/api')
 
 
     @app.route('/api/health')
