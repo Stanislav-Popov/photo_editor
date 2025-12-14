@@ -165,7 +165,7 @@ export default function DefaultPage() {
         }
         try {
             // Отправляем на сервер
-            const response = await fetch("http://localhost:5000/api/flip", {
+            const response = await fetch("http://localhost:5000/api/rotate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
