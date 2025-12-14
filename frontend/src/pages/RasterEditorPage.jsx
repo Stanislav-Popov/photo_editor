@@ -119,17 +119,22 @@ export default function DefaultPage() {
             return
         }
         try {
+            console.log("pathFromBackend:", pathFromBackend)
+
             // Отправляем на сервер
             const response = await fetch("http://localhost:5000/api/flip", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     path: pathFromBackend,
-                    mode: "horizontal"
-                 }),
+                    mode: "horizontal",
+                }),
             })
+            
+            console.log("pathFromBackend:", pathFromBackend)
+
 
             if (!response.status) {
                 throw new Error(`Ошибка сервера: ${response.status}`)
