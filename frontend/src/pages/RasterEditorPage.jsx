@@ -48,7 +48,7 @@ export default function DefaultPage() {
                 const result = await response.json()
 
                 console.log("Ответ сервера:", result.status)
-                setPathFromBackend(result.url)
+                setPathFromBackend(result.image_id)
             } catch (error) {
                 console.error("Ошибка при отправке:", error)
                 alert("Не удалось загрузить изображение на сервер")
@@ -143,7 +143,7 @@ export default function DefaultPage() {
             const result = await response.json()
 
             if (result.output_path) {
-                setPathFromBackend(result.output_path)
+                setPathFromBackend(result.image_id)
                 setImageSrc(`http://localhost:5000/backend${result.output_path}`)
                 console.log("in result bp " + result.output_path)
                 console.log("in result fp " + `http://localhost:5000/backend${result.output_path}`)
