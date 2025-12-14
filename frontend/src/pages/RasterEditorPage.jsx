@@ -142,19 +142,13 @@ export default function DefaultPage() {
 
             const result = await response.json()
 
-            if (result.output_path) {
-                // создаём уникальный URL для браузера, чтобы не кешировал старое изображение
-                const fullUrl = `http://localhost:5000/storage/processed/${
-                    result.output_path
-                }?t=${Date.now()}`
+            console.log(result)
 
-                // сохраняем путь на сервере для последующих операций
-                setPathFromBackend(result.output_path)
-
-                // обновляем src для KonvaImage
-                setImageSrc(fullUrl)
-
-                console.log("Обновлённый URL для отображения:", fullUrl)
+            if (result.image_id) {
+                setPathFromBackend(result.image_id)
+                setImageSrc(`http://localhost:5000${result.url}`)
+                console.log("in result bp " + result.image_id)
+                console.log("in result fp " + `http://localhost:5000${result.url}`)
             }
         } catch (error) {
             console.error("Ошибка при отправке:", error)
