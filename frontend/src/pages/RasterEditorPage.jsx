@@ -145,8 +145,8 @@ export default function DefaultPage() {
             if (result.image_id) {
                 setPathFromBackend(result.image_id)
                 // setImageSrc(`http://localhost:5000${result.url}`)
-                image.onload = () => setImageSrc(image.src)
-                
+                image.onload = () => setImageSrc(`http://localhost:5000${result.url}`)
+
                 console.log("in result bp " + result.image_id)
                 console.log("in result fp " + `http://localhost:5000${result.url}`)
             }
