@@ -129,7 +129,7 @@ export default function DefaultPage() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    path: pathFromBackend,
+                    image_id: pathFromBackend,
                     mode: "horizontal",
                 }),
             })
