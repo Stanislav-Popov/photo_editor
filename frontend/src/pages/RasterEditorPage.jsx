@@ -46,8 +46,9 @@ export default function DefaultPage() {
                 }
                 // Добавьте получение ответа от сервера
                 const result = await response.json()
+
                 console.log("Ответ сервера:", result.status)
-                setPathFromBackend(result.path)
+                setPathFromBackend(result.url)
             } catch (error) {
                 console.error("Ошибка при отправке:", error)
                 alert("Не удалось загрузить изображение на сервер")
