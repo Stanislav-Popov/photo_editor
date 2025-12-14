@@ -113,6 +113,41 @@ export default function DefaultPage() {
         }
     }
 
+    async function handleRotate() {
+        if (!pathFromBackend) {
+            alert("Сначала загрузите изображение")
+            return
+        }
+        try {
+            // Отправляем на сервер
+            const response = await fetch("http://localhost:5000/api/flip", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ path: pathFromBackend }),
+            })
+
+            if (!response.status) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const result = await response.json()
+            if (result.imageBase64) {
+                setImageSrc(`data:image/png;base64,${result.imageBase64}`)
+            } else if (result.path) {
+                setImageSrc(result.path)
+            } else if (result.imageUrl) {
+                setImageSrc(result.imageUrl)
+            } else if (result.image) {
+                setImageSrc(result.image)
+            }
+        } catch (error) {
+            console.error("Ошибка при отправке:", error)
+            alert("Не удалось загрузить изображение на сервер")
+        }
+    }
+
     const handleUndo = () => {
         console.log("Отмена последнего действия")
         // логика отмены
@@ -142,12 +177,7 @@ export default function DefaultPage() {
                         // iconName="image"
                     />
 
-                    <ToolbarButton
-                        onClick={handleSave}
-                        text="Сохранить изображение"
-                        type="primary"
-                        // iconName="image"
-                    />
+                    <ToolbarButton onClick={handleRotate} text="Повернуть изображение" type="primary" />
 
                     <ToolbarButton
                         onClick={handleGistogramm}
