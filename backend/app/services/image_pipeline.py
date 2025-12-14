@@ -1,6 +1,10 @@
 import os
+from app.config import (
+    STORAGE_ORIGINALS,
+    STORAGE_PROCESSED
+)
 
-# базовые
+# базовые операции
 from app.services.operations.basic_ops import (
     resize_image,
     crop_image,
@@ -26,7 +30,8 @@ from app.services.operations.analysis_ops import (
 
 class ImagePipeline:
     """
-    Связывает API и OpenCV-операции
+    Связывает API и OpenCV-операции.
+    Работает ТОЛЬКО с image_id, а не с абсолютными путями.
     """
 
     # =========================
@@ -34,68 +39,107 @@ class ImagePipeline:
     # =========================
     @staticmethod
     def save_image(file):
-        from app.config import Config
+        
         import uuid
 
-        filename = f"{uuid.uuid4().hex}_{file.filename}"
-        path = os.path.join(Config.STORAGE_ORIGINALS, filename)
+        os.makedirs(STORAGE_ORIGINALS, exist_ok=True)
+
+        image_id = f"{uuid.uuid4().hex}_{file.filename}"
+        path = os.path.join(STORAGE_ORIGINALS, image_id)
         file.save(path)
 
         return {
-            'status': 'ok',
-            'path': path,
-            'image_url': f"/files/originals/{filename}"
+            "status": "ok",
+            "image_id": image_id,
+            "url": f"/files/originals/{image_id}"
         }
 
     # =========================
-    # ЭТАП 3 — базовые
+    # БАЗОВЫЕ ОПЕРАЦИИ
     # =========================
     @staticmethod
-    def resize(path, scale=None, width=None, height=None):
-        return resize_image(path, scale, width, height)
+    def resize(image_id, scale=None, width=None, height=None):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = resize_image(src, scale, width, height)
+        return ImagePipeline._format_result(result)
 
     @staticmethod
-    def crop(path, x, y, width, height):
-        return crop_image(path, x, y, width, height)
+    def crop(image_id, x, y, width, height):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = crop_image(src, x, y, width, height)
+        return ImagePipeline._format_result(result)
 
     @staticmethod
-    def flip(path, mode):
-        return flip_image(path, mode)
+    def flip(image_id, mode):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = flip_image(src, mode)
+        return ImagePipeline._format_result(result)
 
     @staticmethod
-    def rotate(path, angle):
-        return rotate_image(path, angle)
-
-    # =========================
-    # ЭТАП 4 — продвинутые
-    # =========================
-    @staticmethod
-    def channels(path):
-        return split_merge_channels(path)
-
-    @staticmethod
-    def color_balance(path, r=0, g=0, b=0):
-        return color_balance(path, r, g, b)
-
-    @staticmethod
-    def noise(path):
-        return add_noise(path)
-
-    @staticmethod
-    def blur(path):
-        return blur_image(path)
-
-    @staticmethod
-    def morphology(path):
-        return morphology_open(path)
+    def rotate(image_id, angle):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = rotate_image(src, angle)
+        return ImagePipeline._format_result(result)
 
     # =========================
-    # ЭТАП 5 — анализ
+    # ПРОДВИНУТЫЕ
     # =========================
     @staticmethod
-    def histogram(path):
-        return histogram_calc(path)
+    def channels(image_id):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        return split_merge_channels(src)
 
     @staticmethod
-    def contours(path):
-        return contours_calc(path)
+    def color_balance(image_id, r=0, g=0, b=0):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = color_balance(src, r, g, b)
+        return ImagePipeline._format_result(result)
+
+    @staticmethod
+    def noise(image_id):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = add_noise(src)
+        return ImagePipeline._format_result(result)
+
+    @staticmethod
+    def blur(image_id):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = blur_image(src)
+        return ImagePipeline._format_result(result)
+
+    @staticmethod
+    def morphology(image_id):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        result = morphology_open(src)
+        return ImagePipeline._format_result(result)
+
+    # =========================
+    # АНАЛИЗ
+    # =========================
+    @staticmethod
+    def histogram(image_id):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        return histogram_calc(src)
+
+    @staticmethod
+    def contours(image_id):
+        src = os.path.join(STORAGE_ORIGINALS, image_id)
+        return contours_calc(src)
+
+    # =========================
+    # INTERNAL
+    # =========================
+    @staticmethod
+    def _format_result(result):
+        """
+        Приводит результат операций к единому виду
+        """
+        if "error" in result:
+            return result
+
+        filename = os.path.basename(result["output_path"])
+        return {
+            "status": "ok",
+            "image_id": filename,
+            "url": f"/files/processed/{filename}"
+        }
