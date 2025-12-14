@@ -132,9 +132,8 @@ export default function DefaultPage() {
                     mode: "horizontal",
                 }),
             })
-            
-            console.log("pathFromBackend:", pathFromBackend)
 
+            console.log("pathFromBackend:", pathFromBackend)
 
             if (!response.status) {
                 throw new Error(`Ошибка сервера: ${response.status}`)
@@ -145,7 +144,7 @@ export default function DefaultPage() {
                 setImageSrc(`data:image/png;base64,${result.imageBase64}`)
             } else if (result.path) {
                 setImageSrc(result.path)
-            } else if (result.imageUrl) {
+            } else if (result.output_path) {
                 setImageSrc(result.imageUrl)
             } else if (result.image) {
                 setImageSrc(result.image)

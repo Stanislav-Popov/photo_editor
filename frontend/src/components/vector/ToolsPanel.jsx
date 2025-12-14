@@ -9,6 +9,18 @@ export const ToolsPanel = () => {
     const activeTool = useEditorStore((s) => s.activeTool)
     const setActiveTool = useEditorStore((s) => s.setActiveTool)
 
+    const CircleIcon = ({ filled = false, color = "#1890ff", size = 16 }) => (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={filled ? color : "currentColor"}
+            strokeWidth="1.5">
+            <circle cx="12" cy="12" r="10" fill={filled ? color : "none"} />
+        </svg>
+    )
+
     return (
         <div className={styles.container}>
             <Tooltip title="Выбор (V)">
@@ -24,6 +36,14 @@ export const ToolsPanel = () => {
                     className={styles.btn}
                     icon={<BorderOutlined />}
                     onClick={() => setActiveTool("rect")}
+                />
+            </Tooltip>
+
+            <Tooltip title="Эллипс (E)">
+                <Button
+                    className={styles.btn}
+                    icon={<CircleIcon filled={false} color="#2e6171" />}
+                    onClick={() => setActiveTool("ellipse")}
                 />
             </Tooltip>
 

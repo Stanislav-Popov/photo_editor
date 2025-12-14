@@ -12,6 +12,7 @@ export const Canvas = () => {
     const addObject = useEditorStore((s) => s.addObject)
     const selectObject = useEditorStore((s) => s.selectObject)
 
+    const [drawingEllipse, setDrawingEllipse] = useState(null)
     const [drawingRect, setDrawingRect] = useState(null)
     const [dragging, setDragging] = useState(null) // {id, startX, startY, origX, origY}
 
@@ -39,19 +40,26 @@ export const Canvas = () => {
     }
 
     const onMouseDown = (e) => {
-        if (activeTool !== "rect") {
-            selectObject(null)
+        const { x, y } = getMousePosition(e)
+
+        if (activeTool === "rect") {
+            setDrawingRect({ x, y, width: 0, height: 0 })
             return
         }
 
-        const { x, y } = getMousePosition(e)
+        if (activeTool === "ellipse") {
+            setDrawingEllipse({
+                startX: x,
+                startY: y,
+                cx: x,
+                cy: y,
+                rx: 0,
+                ry: 0,
+            })
+            return
+        }
 
-        setDrawingRect({
-            x,
-            y,
-            width: 0,
-            height: 0,
-        })
+        selectObject(null)
     }
 
     const onMouseMove = (e) => {
@@ -81,11 +89,53 @@ export const Canvas = () => {
             // триггерим обновление состояния через setState
             addObject({ ...obj }) // можно создать action "updateObject"
         }
+
+        if (activeTool === "ellipse" && drawingEllipse) {
+            const rx = Math.abs(x - drawingEllipse.startX) / 2
+            const ry = Math.abs(y - drawingEllipse.startY) / 2
+
+            const cx = (x + drawingEllipse.startX) / 2
+            const cy = (y + drawingEllipse.startY) / 2
+
+            setDrawingEllipse({
+                ...drawingEllipse,
+                cx,
+                cy,
+                rx,
+                ry,
+            })
+            return
+        }
     }
 
     const onMouseUp = () => {
         if (dragging) {
             setDragging(null)
+            return
+        }
+
+        if (drawingEllipse) {
+            const { cx, cy, rx, ry } = drawingEllipse
+
+            if (rx < 2 || ry < 2) {
+                setDrawingEllipse(null)
+                return
+            }
+
+            addObject({
+                id: crypto.randomUUID(),
+                type: "ellipse",
+                layerId: "layer-1",
+                transform: "",
+                style: {
+                    fill: "#52c41a55",
+                    stroke: "#52c41a",
+                    strokeWidth: 2,
+                },
+                data: { cx, cy, rx, ry },
+            })
+
+            setDrawingEllipse(null)
             return
         }
 
@@ -157,6 +207,20 @@ export const Canvas = () => {
                             />
                         )
                     }
+
+                    if (obj.type === "ellipse") {
+                        return (
+                            <ellipse
+                                key={obj.id}
+                                {...obj.data}
+                                fill={obj.style.fill}
+                                stroke={obj.style.stroke}
+                                strokeWidth={obj.style.strokeWidth}
+                                transform={obj.transform}
+                                onMouseDown={(e) => onMouseDownObject(e, obj)}
+                            />
+                        )
+                    }
                     return null
                 })}
 
@@ -211,6 +275,19 @@ export const Canvas = () => {
                             />
                         )
                     })()}
+
+                {drawingEllipse && (
+                    <ellipse
+                        cx={drawingEllipse.cx}
+                        cy={drawingEllipse.cy}
+                        rx={drawingEllipse.rx}
+                        ry={drawingEllipse.ry}
+                        fill="rgba(82,196,26,0.2)"
+                        stroke="#52c41a"
+                        strokeDasharray="4"
+                        pointerEvents="none"
+                    />
+                )}
             </svg>
         </div>
     )
