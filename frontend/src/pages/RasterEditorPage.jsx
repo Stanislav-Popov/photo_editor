@@ -6,11 +6,18 @@ import RasterImageLayer from "../components/raster/rasterImageLayer"
 import React, { useState } from "react"
 import { Layout, Slider } from "antd"
 const { Sider, Content } = Layout
+import CropOverlayLayer from "../components/raster/CropOverlayLayer"
 
 export default function DefaultPage() {
     const [imageSrc, setImageSrc] = useState(null)
     const [pathFromBackend, setPathFromBackend] = useState(null)
     const [rotateAngle, setRotateAngle] = useState(90)
+    const [crop, setCrop] = useState({
+        x: 100,
+        y: 100,
+        width: 300,
+        height: 200,
+    })
 
     const handleOpenImage = () => {
         const input = document.createElement("input")
@@ -80,7 +87,7 @@ export default function DefaultPage() {
         console.log("Изображение сохранено как 'изображение.png'")
     }
 
-    async function handleGistogramm() {
+    async function handleHistogram() {
         if (!pathFromBackend) {
             alert("Сначала загрузите изображение")
             return
@@ -217,32 +224,38 @@ export default function DefaultPage() {
         <Layout className={styles.layoutStyle}>
             {/* <Header className={styles.headerStyle}>Header</Header> */}
             <Layout>
-                <Sider width="15%" className={styles.siderStyle}>
-                    <ToolbarButton
-                        onClick={handleOpenImage}
-                        text="Открыть изображение"
-                        type="primary"
-                        // iconName="image"
-                    />
+                <Sider width="25%" className={styles.siderStyle}>
+                    <div className={styles.save_load_container}>
+                        <ToolbarButton
+                            onClick={handleOpenImage}
+                            text="Открыть изображение"
+                            type="primary"
+                            widthOfBtn="48%"
+                            // iconName="image"
+                        />
 
-                    <ToolbarButton
-                        onClick={handleSave}
-                        text="Сохранить изображение"
-                        type="primary"
-                        // iconName="image"
-                    />
+                        <ToolbarButton
+                            onClick={handleSave}
+                            text="Сохранить изображение"
+                            type="primary"
+                            widthOfBtn="48%"
+                            // iconName="image"
+                        />
+                    </div>
 
                     <ToolbarButton
                         onClick={handleFlip}
                         text="Отзеркалить изображение"
                         type="primary"
+                        widthOfBtn="100%"
                         // iconName="image"
                     />
 
                     <ToolbarButton
-                        onClick={handleGistogramm}
+                        onClick={handleHistogram}
                         text="Гистограмма"
                         type="primary"
+                        widthOfBtn="100%"
                         // iconName="image"
                     />
 
@@ -263,9 +276,17 @@ export default function DefaultPage() {
                             // iconName="image"
                         />
                     </div>
+
+                    <ToolbarButton
+                        onClick={() => setCrop((c) => ({ ...c, visible: !c.visible }))}
+                        text="Обрезка"
+                    />
                 </Sider>
                 <Content className={styles.contentStyle}>
-                    <CanvasStage>{imageSrc && <RasterImageLayer src={imageSrc} />}</CanvasStage>
+                    <CanvasStage>
+                        {imageSrc && <RasterImageLayer src={imageSrc} />}
+                        {imageSrc && <CropOverlayLayer crop={crop} setCrop={setCrop} />}
+                    </CanvasStage>
                 </Content>
             </Layout>
         </Layout>

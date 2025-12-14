@@ -25,6 +25,7 @@ export default function ToolbarButton({
     style,
     className,
     disabled = false,
+    widthOfBtn = "90%",
     // iconName // название иконки из объекта выше
 }) {
     return (
@@ -33,7 +34,7 @@ export default function ToolbarButton({
             // icon={iconName ? iconComponents[iconName] : null}
             style={{
                 margin: "10px 0",
-                width: "90%",
+                width: widthOfBtn,
                 backgroundColor: "white",
                 color: "black",
                 ...style,
