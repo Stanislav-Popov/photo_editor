@@ -120,8 +120,6 @@ export default function DefaultPage() {
             return
         }
         try {
-            console.log("pathFromBackend:", pathFromBackend)
-
             // Отправляем на сервер
             const response = await fetch("http://localhost:5000/api/flip", {
                 method: "POST",
@@ -146,7 +144,9 @@ export default function DefaultPage() {
 
             if (result.image_id) {
                 setPathFromBackend(result.image_id)
-                setImageSrc(`http://localhost:5000${result.url}`)
+                // setImageSrc(`http://localhost:5000${result.url}`)
+                image.onload = () => setImageSrc(image.src)
+                
                 console.log("in result bp " + result.image_id)
                 console.log("in result fp " + `http://localhost:5000${result.url}`)
             }
