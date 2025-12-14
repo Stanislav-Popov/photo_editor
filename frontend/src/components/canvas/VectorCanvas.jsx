@@ -1,5 +1,4 @@
 /** @format */
-
 import { useEditorStore } from "../vector/store/editorStore"
 import { useRef, useState } from "react"
 
@@ -7,14 +6,14 @@ export const Canvas = () => {
     const svgRef = useRef(null)
 
     const { canvas, objects, selectedObjectId } = useEditorStore((s) => s.document)
-
     const activeTool = useEditorStore((s) => s.activeTool)
     const addObject = useEditorStore((s) => s.addObject)
+    const updateObject = useEditorStore((s) => s.updateObject)
     const selectObject = useEditorStore((s) => s.selectObject)
 
-    const [drawingEllipse, setDrawingEllipse] = useState(null)
     const [drawingRect, setDrawingRect] = useState(null)
-    const [dragging, setDragging] = useState(null) // {id, startX, startY, origX, origY}
+    const [drawingEllipse, setDrawingEllipse] = useState(null)
+    const [dragging, setDragging] = useState(null) // {id, startX, startY, origData, type}
 
     const getMousePosition = (e) => {
         const rect = svgRef.current.getBoundingClientRect()
@@ -27,14 +26,14 @@ export const Canvas = () => {
     const onMouseDownObject = (e, obj) => {
         if (activeTool !== "select") return
         e.stopPropagation()
-
         const { x, y } = getMousePosition(e)
+
         setDragging({
             id: obj.id,
             startX: x,
             startY: y,
-            origX: obj.data.x,
-            origY: obj.data.y,
+            origData: { ...obj.data },
+            type: obj.type,
         })
         selectObject(obj.id)
     }
@@ -65,7 +64,7 @@ export const Canvas = () => {
     const onMouseMove = (e) => {
         const { x, y } = getMousePosition(e)
 
-        // рисование прямоугольника
+        // Рисуем прямоугольник
         if (activeTool === "rect" && drawingRect) {
             setDrawingRect((prev) => ({
                 ...prev,
@@ -75,28 +74,12 @@ export const Canvas = () => {
             return
         }
 
-        // перемещение выбранного объекта
-        if (dragging) {
-            const dx = x - dragging.startX
-            const dy = y - dragging.startY
-
-            const obj = objects.find((o) => o.id === dragging.id)
-            if (!obj) return
-
-            obj.data.x = dragging.origX + dx
-            obj.data.y = dragging.origY + dy
-
-            // триггерим обновление состояния через setState
-            addObject({ ...obj }) // можно создать action "updateObject"
-        }
-
+        // Рисуем эллипс
         if (activeTool === "ellipse" && drawingEllipse) {
             const rx = Math.abs(x - drawingEllipse.startX) / 2
             const ry = Math.abs(y - drawingEllipse.startY) / 2
-
             const cx = (x + drawingEllipse.startX) / 2
             const cy = (y + drawingEllipse.startY) / 2
-
             setDrawingEllipse({
                 ...drawingEllipse,
                 cx,
@@ -106,73 +89,92 @@ export const Canvas = () => {
             })
             return
         }
+
+        // Перетаскивание
+        if (dragging) {
+            const dx = x - dragging.startX
+            const dy = y - dragging.startY
+
+            updateObject(dragging.id, (obj) => {
+                if (dragging.type === "rect") {
+                    return {
+                        ...obj,
+                        data: {
+                            ...obj.data,
+                            x: dragging.origData.x + dx,
+                            y: dragging.origData.y + dy,
+                        },
+                    }
+                } else if (dragging.type === "ellipse") {
+                    return {
+                        ...obj,
+                        data: {
+                            ...obj.data,
+                            cx: dragging.origData.cx + dx,
+                            cy: dragging.origData.cy + dy,
+                        },
+                    }
+                }
+                return obj
+            })
+        }
     }
 
     const onMouseUp = () => {
+        // Заканчиваем drag
         if (dragging) {
             setDragging(null)
             return
         }
 
+        // Добавляем эллипс
         if (drawingEllipse) {
             const { cx, cy, rx, ry } = drawingEllipse
-
-            if (rx < 2 || ry < 2) {
-                setDrawingEllipse(null)
-                return
+            if (rx >= 2 && ry >= 2) {
+                addObject({
+                    id: crypto.randomUUID(),
+                    type: "ellipse",
+                    layerId: "layer-1",
+                    transform: "",
+                    style: {
+                        fill: "#52c41a55",
+                        stroke: "#52c41a",
+                        strokeWidth: 2,
+                    },
+                    data: { cx, cy, rx, ry },
+                })
             }
-
-            addObject({
-                id: crypto.randomUUID(),
-                type: "ellipse",
-                layerId: "layer-1",
-                transform: "",
-                style: {
-                    fill: "#52c41a55",
-                    stroke: "#52c41a",
-                    strokeWidth: 2,
-                },
-                data: { cx, cy, rx, ry },
-            })
-
             setDrawingEllipse(null)
             return
         }
 
-        if (!drawingRect) return
-
-        let { x, y, width, height } = drawingRect
-
-        if (width < 0) {
-            x += width
-            width = Math.abs(width)
-        }
-        if (height < 0) {
-            y += height
-            height = Math.abs(height)
-        }
-
-        if (width < 2 || height < 2) {
+        // Добавляем прямоугольник
+        if (drawingRect) {
+            let { x, y, width, height } = drawingRect
+            if (width < 0) {
+                x += width
+                width = Math.abs(width)
+            }
+            if (height < 0) {
+                y += height
+                height = Math.abs(height)
+            }
+            if (width >= 2 && height >= 2) {
+                addObject({
+                    id: crypto.randomUUID(),
+                    type: "rect",
+                    layerId: "layer-1",
+                    transform: "",
+                    style: {
+                        fill: "#1890ff55",
+                        stroke: "#1890ff",
+                        strokeWidth: 2,
+                    },
+                    data: { x, y, width, height },
+                })
+            }
             setDrawingRect(null)
-            return
         }
-
-        const rectObject = {
-            id: crypto.randomUUID(),
-            type: "rect",
-            layerId: "layer-1",
-            transform: "",
-            style: {
-                fill: "#1890ff55",
-                stroke: "#1890ff",
-                strokeWidth: 2,
-            },
-            data: { x, y, width, height },
-        }
-
-        addObject(rectObject)
-        setDrawingRect(null) // обязательно
-        setDragging(null)
     }
 
     return (
@@ -192,7 +194,8 @@ export const Canvas = () => {
                 onMouseDown={onMouseDown}
                 onMouseMove={onMouseMove}
                 onMouseUp={onMouseUp}
-                onMouseLeave={() => setDrawingRect(null)}>
+                onMouseLeave={onMouseUp}>
+                {/* Рендер объектов */}
                 {objects.map((obj) => {
                     if (obj.type === "rect") {
                         return (
@@ -207,7 +210,6 @@ export const Canvas = () => {
                             />
                         )
                     }
-
                     if (obj.type === "ellipse") {
                         return (
                             <ellipse
@@ -225,59 +227,24 @@ export const Canvas = () => {
                 })}
 
                 {/* Временный прямоугольник */}
-                {drawingRect &&
-                    (() => {
-                        let { x, y, width, height } = drawingRect
+                {drawingRect && (
+                    <rect
+                        key="temp-rect"
+                        x={drawingRect.width < 0 ? drawingRect.x + drawingRect.width : drawingRect.x}
+                        y={drawingRect.height < 0 ? drawingRect.y + drawingRect.height : drawingRect.y}
+                        width={Math.abs(drawingRect.width)}
+                        height={Math.abs(drawingRect.height)}
+                        fill="rgba(24,144,255,0.2)"
+                        stroke="#1890ff"
+                        strokeDasharray="4"
+                        pointerEvents="none"
+                    />
+                )}
 
-                        if (width === 0 || height === 0) return null
-
-                        if (width < 0) {
-                            x += width
-                            width = Math.abs(width)
-                        }
-
-                        if (height < 0) {
-                            y += height
-                            height = Math.abs(height)
-                        }
-
-                        return (
-                            <rect
-                                x={x}
-                                y={y}
-                                width={width}
-                                height={height}
-                                fill="rgba(24,144,255,0.2)"
-                                stroke="#1890ff"
-                                strokeDasharray="4"
-                                onMouseDown={(e) => onMouseDownObject(e, obj)}
-                            />
-                        )
-                    })()}
-
-                {/* Выделение */}
-                {selectedObjectId &&
-                    (() => {
-                        const selectedObj = objects.find((obj) => obj.id === selectedObjectId)
-                        if (!selectedObj) return null
-
-                        const { x, y, width, height } = selectedObj.data
-                        return (
-                            <rect
-                                x={x}
-                                y={y}
-                                width={width}
-                                height={height}
-                                fill="none"
-                                stroke="blue"
-                                strokeDasharray="4"
-                                pointerEvents="none" // чтобы контур не перехватывал клики
-                            />
-                        )
-                    })()}
-
+                {/* Временный эллипс */}
                 {drawingEllipse && (
                     <ellipse
+                        key="temp-ellipse"
                         cx={drawingEllipse.cx}
                         cy={drawingEllipse.cy}
                         rx={drawingEllipse.rx}
@@ -288,6 +255,44 @@ export const Canvas = () => {
                         pointerEvents="none"
                     />
                 )}
+
+                {/* Выделение */}
+                {selectedObjectId &&
+                    (() => {
+                        const obj = objects.find((o) => o.id === selectedObjectId)
+                        if (!obj) return null
+                        if (obj.type === "rect") {
+                            const { x, y, width, height } = obj.data
+                            return (
+                                <rect
+                                    x={x}
+                                    y={y}
+                                    width={width}
+                                    height={height}
+                                    fill="none"
+                                    stroke="blue"
+                                    strokeDasharray="4"
+                                    pointerEvents="none"
+                                />
+                            )
+                        }
+                        if (obj.type === "ellipse") {
+                            const { cx, cy, rx, ry } = obj.data
+                            return (
+                                <ellipse
+                                    cx={cx}
+                                    cy={cy}
+                                    rx={rx}
+                                    ry={ry}
+                                    fill="none"
+                                    stroke="blue"
+                                    strokeDasharray="4"
+                                    pointerEvents="none"
+                                />
+                            )
+                        }
+                        return null
+                    })()}
             </svg>
         </div>
     )

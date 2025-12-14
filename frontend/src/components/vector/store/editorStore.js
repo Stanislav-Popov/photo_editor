@@ -45,11 +45,11 @@ export const useEditorStore = create((set) => ({
             },
         })),
 
-    updateObject: (updatedObj) =>
+    updateObject: (id, fn) =>
         set((state) => ({
             document: {
                 ...state.document,
-                objects: state.document.objects.map((obj) => (obj.id === updatedObj.id ? updatedObj : obj)),
+                objects: state.document.objects.map((obj) => (obj.id === id ? fn(obj) : obj)),
             },
         })),
 }))

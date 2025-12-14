@@ -143,9 +143,9 @@ export default function DefaultPage() {
 
             if (result.output_path) {
                 setPathFromBackend(result.output_path)
-                setImageSrc(`http://localhost:5000${result.output_path}`)
-                console.log("in result bp" + result.output_path)
-                console.log("in result fp" + `http://localhost:5000${result.output_path}`)
+                setImageSrc(`http://localhost:5000/backend${result.output_path}`)
+                console.log("in result bp " + result.output_path)
+                console.log("in result fp " + `http://localhost:5000/backend${result.output_path}`)
             }
         } catch (error) {
             console.error("Ошибка при отправке:", error)
