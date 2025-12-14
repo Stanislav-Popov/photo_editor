@@ -4,12 +4,13 @@ import CanvasStage from "../components/canvas/CanvasStage"
 import ToolbarButton from "../components/funcButtons/ToobarButton"
 import RasterImageLayer from "../components/raster/rasterImageLayer"
 import React, { useState } from "react"
-import { Layout } from "antd"
-const { Header, Sider, Content } = Layout
+import { Layout, Slider } from "antd"
+const { Sider, Content } = Layout
 
 export default function DefaultPage() {
     const [imageSrc, setImageSrc] = useState(null)
     const [pathFromBackend, setPathFromBackend] = useState(null)
+    const [rotateAngle, setRotateAngle] = useState(90)
 
     const handleOpenImage = () => {
         const input = document.createElement("input")
@@ -159,6 +160,8 @@ export default function DefaultPage() {
     }
 
     async function handleRotate() {
+        console.log(rotateAngle)
+
         if (!setImageSrc) {
             alert("Сначала загрузите изображение")
             return
@@ -172,11 +175,9 @@ export default function DefaultPage() {
                 },
                 body: JSON.stringify({
                     image_id: pathFromBackend,
-                    angle: "90",
+                    angle: rotateAngle,
                 }),
             })
-
-            console.log("pathFromBackend:", pathFromBackend)
 
             if (!response.status) {
                 throw new Error(`Ошибка сервера: ${response.status}`)
@@ -245,12 +246,23 @@ export default function DefaultPage() {
                         // iconName="image"
                     />
 
-                    <ToolbarButton
-                        onClick={handleRotate}
-                        text="Повернуть"
-                        type="primary"
-                        // iconName="image"
-                    />
+                    <div className={styles.sliderBlock}>
+                        <h4>Повернуть изображение</h4>
+                        <Slider
+                            min={0}
+                            max={360}
+                            value={rotateAngle}
+                            onChange={(value) => setRotateAngle(value)}
+                        />
+                        <span>{rotateAngle}°</span>
+                        <ToolbarButton
+                            onClick={handleRotate}
+                            text="Ок"
+                            type="primary"
+                            width="180px"
+                            // iconName="image"
+                        />
+                    </div>
                 </Sider>
                 <Content className={styles.contentStyle}>
                     <CanvasStage>{imageSrc && <RasterImageLayer src={imageSrc} />}</CanvasStage>

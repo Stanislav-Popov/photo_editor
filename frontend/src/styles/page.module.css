@@ -37,3 +37,35 @@
     width: 100%;
     height: 100%;
 }
+
+.toolbarButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.sliderBlock {
+    background-color: #1a73e8;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.sliderBlock h4 {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.sliderBlock .ant-slider {
+    margin-bottom: 8px;
+}
+
+.sliderBlock span {
+    display: block;
+    font-weight: 500;
+}
