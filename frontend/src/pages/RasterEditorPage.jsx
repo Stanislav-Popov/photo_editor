@@ -142,11 +142,11 @@ export default function DefaultPage() {
 
             const result = await response.json()
 
-            if (result.output_path) {
+            if (result.image_id) {
                 setPathFromBackend(result.image_id)
-                setImageSrc(`http://localhost:5000/backend${result.output_path}`)
-                console.log("in result bp " + result.output_path)
-                console.log("in result fp " + `http://localhost:5000/backend${result.output_path}`)
+                setImageSrc(`http://localhost:5000/backend${result.image_id}`)
+                console.log("in result bp " + result.image_id)
+                console.log("in result fp " + `http://localhost:5000/backend${result.image_id}`)
             }
         } catch (error) {
             console.error("Ошибка при отправке:", error)
