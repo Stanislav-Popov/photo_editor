@@ -145,8 +145,8 @@ export default function DefaultPage() {
             } else if (result.path) {
                 setImageSrc(result.path)
             } else if (result.output_path) {
-                console.log("in result" + result.imageUrl)
-                setImageSrc(result.imageUrl)
+                console.log("in result" + result.output_path)
+                setImageSrc(result.output_path)
             } else if (result.image) {
                 setImageSrc(result.image)
             }
