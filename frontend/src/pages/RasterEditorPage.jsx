@@ -148,7 +148,51 @@ export default function DefaultPage() {
                 const image = new window.Image()
                 image.src = `http://localhost:5000${result.url}`
                 image.onload = () => setImageSrc(image.src)
-                
+
+                console.log("in result bp " + result.image_id)
+                console.log("in result fp " + `http://localhost:5000${result.url}`)
+            }
+        } catch (error) {
+            console.error("Ошибка при отправке:", error)
+            alert("Не удалось загрузить изображение на сервер")
+        }
+    }
+
+    async function handleRotate() {
+        if (!setImageSrc) {
+            alert("Сначала загрузите изображение")
+            return
+        }
+        try {
+            // Отправляем на сервер
+            const response = await fetch("http://localhost:5000/api/flip", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    image_id: pathFromBackend,
+                    angle: "90",
+                }),
+            })
+
+            console.log("pathFromBackend:", pathFromBackend)
+
+            if (!response.status) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const result = await response.json()
+
+            console.log(result)
+
+            if (result.image_id) {
+                setPathFromBackend(result.image_id)
+                // setImageSrc(`http://localhost:5000${result.url}`)
+                const image = new window.Image()
+                image.src = `http://localhost:5000${result.url}`
+                image.onload = () => setImageSrc(image.src)
+
                 console.log("in result bp " + result.image_id)
                 console.log("in result fp " + `http://localhost:5000${result.url}`)
             }
@@ -197,6 +241,13 @@ export default function DefaultPage() {
                     <ToolbarButton
                         onClick={handleGistogramm}
                         text="Гистограмма"
+                        type="primary"
+                        // iconName="image"
+                    />
+
+                    <ToolbarButton
+                        onClick={handleRotate}
+                        text="Повернуть"
                         type="primary"
                         // iconName="image"
                     />
