@@ -140,15 +140,12 @@ export default function DefaultPage() {
             }
 
             const result = await response.json()
-            if (result.imageBase64) {
-                setImageSrc(`data:image/png;base64,${result.imageBase64}`)
-            } else if (result.path) {
-                setImageSrc(result.path)
-            } else if (result.output_path) {
-                console.log("in result" + result.output_path)
-                setImageSrc(result.output_path)
-            } else if (result.image) {
-                setImageSrc(result.image)
+
+            if (result.output_path) {
+                setPathFromBackend(result.output_path)
+                setImageSrc(`http://localhost:5000${result.output_path}`)
+                console.log("in result bp" + result.output_path)
+                console.log("in result fp" + `http://localhost:5000${result.output_path}`)
             }
         } catch (error) {
             console.error("Ошибка при отправке:", error)
