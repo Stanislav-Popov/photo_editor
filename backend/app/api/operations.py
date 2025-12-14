@@ -41,7 +41,7 @@ def crop():
 def flip():
     data = request.json
     return jsonify(ImagePipeline.flip(
-        path=data['path'],
+        image_id=data['image_id'],
         mode=data['mode']
     ))
 
@@ -49,7 +49,7 @@ def flip():
 def rotate():
     data = request.json
     return jsonify(ImagePipeline.rotate(
-        path=data['path'],
+        image_id=data['image_id'],
         angle=data['angle']
     ))
 

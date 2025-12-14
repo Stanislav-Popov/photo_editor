@@ -13,4 +13,4 @@ STORAGE_DIR = os.path.join(BACKEND_ROOT, "storage")
 STORAGE_ORIGINALS = os.path.join(STORAGE_DIR, "originals")
 
 # storage/processed
-STORAGE_PROCESSED = os.path.join(STORAGE_DIR, "processed")
+STORAGE_PROCESSED = os.path.join(STORAGE_DIR, "originals")
