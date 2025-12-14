@@ -21,14 +21,15 @@
     text-align: center;
     line-height: 120px;
     color: #fff;
-    background-color: #1677ff;
+    background-color: #ab7f4a;
     width: 50px;
+    padding: 20px 20px;
 }
 
 .footerStyle {
     text-align: center;
     color: #fff;
-    background-color: #4096ff;
+    background-color: #ab7f4a;
 }
 
 .layoutStyle {
@@ -46,18 +47,19 @@
 }
 
 .sliderBlock {
-    background-color: #1a73e8;
+    background-color: #ab7f4a;
     padding: 12px 16px;
     border-radius: 8px;
     margin-bottom: 20px;
+    margin-top: 10px;
     color: #fff;
     text-align: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .sliderBlock h4 {
     margin-bottom: 8px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
 }
 
@@ -68,4 +70,10 @@
 .sliderBlock span {
     display: block;
     font-weight: 500;
+}
+
+.save_load_container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
 }
