@@ -39,7 +39,7 @@ class ImagePipeline:
     # =========================
     @staticmethod
     def save_image(file):
-        
+
         import uuid
 
         os.makedirs(STORAGE_ORIGINALS, exist_ok=True)
@@ -51,7 +51,7 @@ class ImagePipeline:
         return {
             "status": "ok",
             "image_id": image_id,
-            "url": f"/files/originals/{image_id}"
+            "url": f"/storage/originals/{image_id}"
         }
 
     # =========================
@@ -141,5 +141,5 @@ class ImagePipeline:
         return {
             "status": "ok",
             "image_id": filename,
-            "url": f"/files/processed/{filename}"
+            "url": f"/storage/processed/{filename}"
         }
