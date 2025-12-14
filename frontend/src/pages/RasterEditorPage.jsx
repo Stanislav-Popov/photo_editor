@@ -114,7 +114,7 @@ export default function DefaultPage() {
     }
 
     async function handleFlip() {
-        if (!pathFromBackend) {
+        if (!setImageSrc) {
             alert("Сначала загрузите изображение")
             return
         }
