@@ -84,6 +84,11 @@ export const Canvas = () => {
     }
 
     const onMouseUp = () => {
+        if (dragging) {
+            setDragging(null)
+            return
+        }
+
         if (!drawingRect) return
 
         let { x, y, width, height } = drawingRect
@@ -148,10 +153,7 @@ export const Canvas = () => {
                                 stroke={obj.style.stroke}
                                 strokeWidth={obj.style.strokeWidth}
                                 transform={obj.transform}
-                                onMouseDown={(e) => {
-                                    e.stopPropagation()
-                                    selectObject(obj.id)
-                                }}
+                                onMouseDown={(e) => onMouseDownObject(e, obj)}
                             />
                         )
                     }

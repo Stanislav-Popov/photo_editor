@@ -9,6 +9,7 @@ const { Header, Sider, Content } = Layout
 
 export default function DefaultPage() {
     const [imageSrc, setImageSrc] = useState(null)
+    const [pathFromBackend, setPathFromBackend] = useState(null)
 
     const handleOpenImage = () => {
         const input = document.createElement("input")
@@ -38,15 +39,15 @@ export default function DefaultPage() {
                 const response = await fetch("http://localhost:5000/api/upload", {
                     method: "POST",
                     body: formData,
-                    // Не указываем Content-Type, FormData установит его автоматически
                 })
 
-                if (!response.ok) {
+                if (!response.status) {
                     throw new Error(`Ошибка сервера: ${response.status}`)
                 }
                 // Добавьте получение ответа от сервера
                 const result = await response.json()
-                console.log("Ответ сервера:", result)
+                console.log("Ответ сервера:", result.status)
+                setPathFromBackend(result.path)
             } catch (error) {
                 console.error("Ошибка при отправке:", error)
                 alert("Не удалось загрузить изображение на сервер")
@@ -75,6 +76,41 @@ export default function DefaultPage() {
         document.body.removeChild(link)
 
         console.log("Изображение сохранено как 'изображение.png'")
+    }
+
+    async function handleGistogramm() {
+        if (!pathFromBackend) {
+            alert("Сначала загрузите изображение")
+            return
+        }
+        try {
+            // Отправляем на сервер
+            const response = await fetch("http://localhost:5000/api/gistogramm", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ path: pathFromBackend }),
+            })
+
+            if (!response.status) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const result = await response.json()
+            if (result.imageBase64) {
+                setImageSrc(`data:image/png;base64,${result.imageBase64}`)
+            } else if (result.path) {
+                setImageSrc(result.path)
+            } else if (result.imageUrl) {
+                setImageSrc(result.imageUrl)
+            } else if (result.image) {
+                setImageSrc(result.image)
+            }
+        } catch (error) {
+            console.error("Ошибка при отправке:", error)
+            alert("Не удалось загрузить изображение на сервер")
+        }
     }
 
     const handleUndo = () => {
@@ -109,6 +145,13 @@ export default function DefaultPage() {
                     <ToolbarButton
                         onClick={handleSave}
                         text="Сохранить изображение"
+                        type="primary"
+                        // iconName="image"
+                    />
+
+                    <ToolbarButton
+                        onClick={handleGistogramm}
+                        text="Гистограмма"
                         type="primary"
                         // iconName="image"
                     />
