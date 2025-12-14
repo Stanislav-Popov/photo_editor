@@ -113,7 +113,7 @@ export default function DefaultPage() {
         }
     }
 
-    async function handleRotate() {
+    async function handleFlip() {
         if (!pathFromBackend) {
             alert("Сначала загрузите изображение")
             return
@@ -125,7 +125,10 @@ export default function DefaultPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ path: pathFromBackend }),
+                body: JSON.stringify({ 
+                    path: pathFromBackend,
+                    mode: "horizontal"
+                 }),
             })
 
             if (!response.status) {
@@ -177,7 +180,12 @@ export default function DefaultPage() {
                         // iconName="image"
                     />
 
-                    <ToolbarButton onClick={handleRotate} text="Повернуть изображение" type="primary" />
+                    <ToolbarButton
+                        onClick={handleFlip}
+                        text="Отзеркалить изображение"
+                        type="primary"
+                        // iconName="image"
+                    />
 
                     <ToolbarButton
                         onClick={handleGistogramm}
